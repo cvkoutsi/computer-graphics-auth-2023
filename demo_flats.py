@@ -1,5 +1,5 @@
 import numpy as np
-from flats import flats,gourauds,bresenham
+from flats import flats,bresenham
 import matplotlib.pyplot as plt
 # The vertexes of the triangles. Size of K x 2 and contains the X and Y coordinates of each edge.
 verts2d = np.load("h1.npy", allow_pickle=True).tolist()['verts2d']
@@ -29,14 +29,14 @@ N = 512
 
 canvas = 255 * np.ones([M, N, 3], dtype=np.uint8)
 
-flats(canvas,verts2d,vcolors,faces,depth)
+canvas = flats(canvas,verts2d,vcolors,faces,depth)
 plt.imshow(canvas, cmap='gray')
 plt.show()
-#
-# gourauds(canvas,verts2d,vcolors,faces,depth)
 
-breakpoint()
-point1 = [100,5]
-point2 = [100,10]
+# # gourauds(canvas,verts2d,vcolors,faces,depth)
+# #
+point1 = [10,10]
+point2 = [10,15]
+# point3 = [284,161]
 idx = bresenham(point1, point2)
 breakpoint()
