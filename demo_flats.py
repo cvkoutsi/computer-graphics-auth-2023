@@ -1,5 +1,5 @@
 import numpy as np
-from flats import flats,bresenham,fill_triangle
+from flats import flats,bresenham,render
 import matplotlib.pyplot as plt
 # The vertexes of the triangles. Size of K x 2 and contains the X and Y coordinates of each edge.
 verts2d = np.load("h1.npy", allow_pickle=True).tolist()['verts2d']
@@ -29,7 +29,7 @@ N = 512
 
 canvas = 255 * np.ones([M, N, 3], dtype=np.uint8)
 
-canvas = flats(canvas,verts2d,vcolors,faces,depth)
+canvas = render(canvas,verts2d,vcolors,faces,depth)
 plt.imshow(canvas, cmap='gray')
 plt.show()
 
