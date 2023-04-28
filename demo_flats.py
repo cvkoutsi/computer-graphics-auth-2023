@@ -29,14 +29,14 @@ N = 512
 
 canvas = 255 * np.ones([M, N, 3], dtype=np.uint8)
 
-canvas = flats(canvas,verts2d,vcolors,faces,depth)
-plt.imshow(canvas, cmap='gray')
-plt.show()
+# canvas,num = flats(canvas,verts2d,vcolors,faces,depth)
+# plt.imshow(canvas, cmap='gray')
+# plt.show()
 
 # # gourauds(canvas,verts2d,vcolors,faces,depth)
-# #
-point1 = [10,10]
-point2 = [10,15]
-# point3 = [284,161]
+
+point1 = [284,168]
+point2 = [290,161]
+point3 = [284,161]
 idx = bresenham(point1, point2)
 breakpoint()

@@ -1,5 +1,7 @@
 import numpy as np
 from interpolate_vectors import interpolate_vectors
+import matplotlib.pyplot as plt
+
 def bresenham(vertex_point1, vertex_point2):
     if vertex_point1[0] <= vertex_point2[0]:
         x0 = vertex_point1[0]
@@ -12,15 +14,15 @@ def bresenham(vertex_point1, vertex_point2):
         x0 = vertex_point2[0]
         y0 = vertex_point2[1]
 
-    deltaX = 2 * (x1 - x0)
-    deltaY = 2 * (y1 - y0)
+    deltaX = 2 * np.abs(x1 - x0)
+    deltaY = 2 * np.abs(y1 - y0)
 
     x = x0
     y = y0
     edge_idx = np.array([x, y])
 
-    if y0 == y1:
-        for x in range(x0 + 1, x1):
+    if x0 == x1:
+        for y in range(y0 + 1, y1):
             edge_idx = np.vstack((edge_idx, np.array([x, y])))
     else:
         f = -deltaY + deltaX / 2
@@ -62,7 +64,8 @@ def flats(canvas,vertices,vcolors,faces,depth):
     triangle_depth = [np.mean(depth[faces[i]]) for i in range(faces.shape[0])]
     # Get the indexes after sorting the triangle depth array with descending order
     sorted_triangle_idx = np.argsort(triangle_depth, kind='quicksort')[::-1]
-
+    num = 0
+    t_id = []
     for triangle_idx in sorted_triangle_idx:
         vertex_idx = faces[triangle_idx]
         vertex_point1 = vertices[vertex_idx[0]]
@@ -77,11 +80,11 @@ def flats(canvas,vertices,vcolors,faces,depth):
         flats_color = np.round(flats_color).astype(np.uint8)
 
         pixels_in_triangle = fill_triangle(vertex_point1, vertex_point2,vertex_point3)
+
         canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 0] = flats_color[0]
         canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 1] = flats_color[1]
         canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 2] = flats_color[2]
-
-    return canvas
+    return canvas,num
 #
 # def gourauds(canvas,vertices,vcolors,faces,depth):
 #     triangle_depth = [np.mean(depth[faces[i]]) for i in range(faces.shape[0])]
