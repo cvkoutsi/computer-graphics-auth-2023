@@ -29,7 +29,8 @@ N = 512
 
 canvas = 255 * np.ones([M, N, 3], dtype=np.uint8)
 
-canvas = render(canvas,verts2d,vcolors,faces,depth)
+shade_t = "gourauds"
+canvas = render(canvas,verts2d,faces,vcolors,depth,shade_t)
 plt.imshow(canvas, cmap='gray')
 plt.show()
 

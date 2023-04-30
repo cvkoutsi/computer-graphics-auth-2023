@@ -110,15 +110,15 @@ def flats(vertex_point1,v1_color,vertex_point2,v2_color,vertex_point3,v3_color):
     for x in range(min_x, max_x):
         idx = np.where(edges[:, 0] == x)
 
-        # Check if the line one edge or none
+        # Check if the line has one edge or none
         if idx[0].size == 1 or idx[0].size == 0:
             continue
 
         edges_in_line = np.squeeze(edges[idx, :])
-        # Check if the line has more than to edges, i.e. consecutive lines
+        # Check if the line has more than two edges, i.e. consecutive lines
         if edges_in_line.shape[0] > 2:
             # Remove all edges that are side by side in the y axis (limit edges)
-            idx = np.where(np.diff(edges_in_line[:, 1]) > 1)
+            idx = np.where(np.abs(np.diff(edges_in_line[:, 1]) > 1))
             idx = idx[0].tolist()
             if len(idx) == 0:
                 continue
@@ -129,7 +129,7 @@ def flats(vertex_point1,v1_color,vertex_point2,v2_color,vertex_point3,v3_color):
             pixels_in_triangle = np.vstack((pixels_in_triangle, np.array([x, y])))
 
     flats_color = np.mean(np.vstack((v1_color, v2_color, v3_color)), axis=0)
-    flats_color = np.round(flats_color)
+    flats_color = np.round(flats_color).reshape((1,3))
 
     return pixels_in_triangle,flats_color
 
@@ -138,41 +138,125 @@ def gourauds(vertex_point1,v1_color,vertex_point2,v2_color,vertex_point3,v3_colo
     edge2 = fill_line(vertex_point1, vertex_point3)
     edge3 = fill_line(vertex_point2, vertex_point3)
 
-    edge1_colors = np.zeros((len(edge1), 3), dtype=np.uint8)
-    dx1 = max(edge1[:, 0]) - min(edge1[:, 0])
-    dy1 = max(edge1[:, 1]) - min(edge1[:, 1])
-    for i in range(len(edge1)):
-        r = round(interpolate_vectors(vertex_point1, vertex_point2, v1_color[0], v2_color[0], edge1[i, 1], dim=2))
-        g = round(interpolate_vectors(vertex_point1, vertex_point2, v1_color[1], v2_color[1], edge1[i, 1], dim=2))
-        b = round(interpolate_vectors(vertex_point1, vertex_point2, v1_color[2], v2_color[2], edge1[i, 1], dim=2))
-        edge1_colors[i, :] = np.array([r, g, b])
+    if np.all(vertex_point1 == edge1[0]):
+        v12_color = np.vstack((v1_color,v2_color))
+    else:
+        v12_color = np.vstack((v2_color,v1_color))
 
-    edge2_colors = np.zeros((len(edge2), 3), dtype=np.uint8)
-    for i in range(len(edge2)):
-        r = round(interpolate_vectors(vertex_point1, vertex_point3, v1_color[0], v3_color[0], edge2[i, 1], dim=2))
-        g = round(interpolate_vectors(vertex_point1, vertex_point3, v1_color[1], v3_color[1], edge2[i, 1], dim=2))
-        b = round(interpolate_vectors(vertex_point1, vertex_point3, v1_color[2], v3_color[2], edge2[i, 1], dim=2))
-        edge2_colors[i, :] = np.array([r, g, b])
+    if np.all(vertex_point2 == edge2[0]):
+        v13_color = np.vstack((v1_color,v3_color))
+    else:
+        v13_color = np.vstack((v3_color,v1_color))
 
-    edge3_colors = np.zeros((len(edge3), 3), dtype=np.uint8)
-    for i in range(len(edge3)):
-        r = round(interpolate_vectors(vertex_point2, vertex_point3, v2_color[0], v3_color[0], edge3[i, 1], dim=2))
-        g = round(interpolate_vectors(vertex_point2, vertex_point3, v2_color[1], v3_color[1], edge3[i, 1], dim=2))
-        b = round(interpolate_vectors(vertex_point2, vertex_point3, v2_color[2], v3_color[2], edge3[i, 1], dim=2))
-        edge3_colors[i, :] = np.array([r, g, b])
+    if np.all(vertex_point3 == edge3[0]):
+        v23_color = np.vstack((v2_color,v3_color))
+    else:
+        v23_color = np.vstack((v3_color,v2_color))
+
+    edges =  [edge1, edge2, edge3]
+    vertex_colors = [v12_color, v13_color, v23_color]
+
+    # Remove edges with only 1 pixel and duplicate edges
+    k = 0
+    for i in range(len(edges)):
+        if len(edges[i-k].shape) == 1:
+            del edges[i-k]
+            del vertex_colors[i-k]
+            k +=1
+
+        # If all edges have 1 pixel, return the position of the pixel and the color of the vertex
+        if len(edges) == 1:
+            return edges[0].reshape((1,2)),vertex_colors[0][0,:].reshape((1,3))
+
+    for i, edge in enumerate(edges):
+        for j in range(i+1, len(edges)):
+            if np.all(edge == edges[j]):
+                del edges[i]
+                del vertex_colors[i]
+
+    edge_colors = []
+    for i in range(len(edges)):
+        edge = edges[i]
+        v_colors = vertex_colors[i]
+
+        e_colors = np.array([v_colors[0,:]])
+        # If the colors in the vertex points are the same, dont interpolate
+        if np.all(v_colors[0, :] == v_colors[1,:]):
+            for i in range(1,len(edge)):
+                e_colors = np.vstack((e_colors, v_colors[0,:]))
+
+        # Else, interpolate between vertex colors to find the color on edges
+        else:
+            # Decide if we interpolate in axis x or y to find color on edges
+            dx1 = max(edge[:, 0]) - min(edge[:, 0])
+            dy1 = max(edge[:, 1]) - min(edge[:, 1])
+            if dx1 > dy1:
+                dim = 1
+                xy = edge[:, 0]
+            else:
+                dim = 2
+                xy = edge[:, 1]
+
+            for i in range(1,len(edge)):
+                r = round(interpolate_vectors(edge[0,:],edge[-1,:],v_colors[0,0],v_colors[1,0],xy[i],dim))
+                g = round(interpolate_vectors(edge[0,:],edge[-1,:],v_colors[0,1],v_colors[1,1],xy[i],dim))
+                b = round(interpolate_vectors(edge[0,:],edge[-1,:],v_colors[0,2],v_colors[1,2],xy[i],dim))
+                e_colors = np.vstack((e_colors, np.array([r, g, b])))
+        edge_colors.append(e_colors)
+
+    edges = np.vstack(edges)
+    edge_colors = np.vstack(edge_colors)
+
+    min_x = min(vertex_point1[0], vertex_point2[0], vertex_point3[0])
+    max_x = max(vertex_point1[0], vertex_point2[0], vertex_point3[0])
+
+    # Interpolate in the y axis to fill the triangle
+    pixels_in_triangle = edges
+    for x in range(min_x, max_x):
+        idx = np.where(edges[:, 0] == x)
+
+        # Check if the line has one edge or none
+        if idx[0].size == 1 or idx[0].size == 0:
+            continue
+
+        edges_in_line = np.squeeze(edges[idx, :])
+        edge_color_in_line = np.squeeze(edge_colors[idx, :])
+
+        # Check if the line has more than two edges, i.e. consecutive lines
+        if edges_in_line.shape[0] > 2:
+            # Remove all edges that are side by side in the y axis (limit edges)
+            idx = np.where(np.abs(np.diff(edges_in_line[:, 1])) > 1)
+            idx = idx[0].tolist()
+            if len(idx) == 0:
+                continue
+            idx.append(idx[0] + 1)
+
+            edges_in_line = edges_in_line[idx]
+            edge_color_in_line = edge_color_in_line[idx]
+
+            for y in range(edges_in_line[0, 1] + 1, edges_in_line[1, 1]):
+                pixels_in_triangle = np.vstack((pixels_in_triangle, np.array([x, y])))
+
+    return edges,edge_colors
 def shade_triangle(vertex_point1,v1_color,vertex_point2,v2_color,vertex_point3,v3_color,shade_t="flat"):
-    if shade_t == "flat":
+    if shade_t == "flats":
         pixels_in_triangle,flats_color = flats(vertex_point1,v1_color,vertex_point2,v2_color,vertex_point3,v3_color)
     elif shade_t == "gourauds":
         pixels_in_triangle,flats_color = gourauds(vertex_point1,v1_color,vertex_point2,v2_color,vertex_point3,v3_color)
+
     return pixels_in_triangle,flats_color
 
-def render(canvas,vertices,vcolors,faces,depth):
+def render(canvas,vertices,faces,vcolors,depth,shade_t):
     triangle_depth = [np.mean(depth[faces[i]]) for i in range(faces.shape[0])]
     # Get the indexes after sorting the triangle depth array with descending order
     sorted_triangle_idx = np.argsort(triangle_depth, kind='quicksort')[::-1]
 
+    i = 1
     for triangle_idx in sorted_triangle_idx:
+        print(triangle_idx)
+        i +=1
+        print(i)
+        # # triangle_idx = 9619
         vertex_idx = faces[triangle_idx]
         vertex_point1 = vertices[vertex_idx[0]]
         vertex_point2 = vertices[vertex_idx[1]]
@@ -182,11 +266,11 @@ def render(canvas,vertices,vcolors,faces,depth):
         v2_color = vcolors[vertex_idx[1]]
         v3_color = vcolors[vertex_idx[2]]
 
-        pixels_in_triangle, flats_color =  shade_triangle(vertex_point1,v1_color,vertex_point2,v2_color,vertex_point3,v3_color,shade_t="flat")
+        pixels_in_triangle, flats_color = shade_triangle(vertex_point1,v1_color,vertex_point2,v2_color,vertex_point3,v3_color,shade_t)
 
-        canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 0] = flats_color[0]
-        canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 1] = flats_color[1]
-        canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 2] = flats_color[2]
+        canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 0] = flats_color[:,0]
+        canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 1] = flats_color[:,1]
+        canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 2] = flats_color[:,2]
 
     return canvas
 
