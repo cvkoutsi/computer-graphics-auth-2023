@@ -207,11 +207,19 @@ def gourauds(vertex_point1,v1_color,vertex_point2,v2_color,vertex_point3,v3_colo
     edges = np.vstack(edges)
     edge_colors = np.vstack(edge_colors)
 
+
+    # Remove duplicate edges
+    edges, idx = np.unique(edges, axis=0, return_index=True)
+    edge_colors = edge_colors[idx]
+    # return edges.reshape((-1, 2)), edge_colors.reshape((-1, 3))
+
     min_x = min(vertex_point1[0], vertex_point2[0], vertex_point3[0])
     max_x = max(vertex_point1[0], vertex_point2[0], vertex_point3[0])
 
     # Interpolate in the y axis to fill the triangle
     pixels_in_triangle = edges
+    pixel_colors = edge_colors
+
     for x in range(min_x, max_x):
         idx = np.where(edges[:, 0] == x)
 
@@ -234,10 +242,15 @@ def gourauds(vertex_point1,v1_color,vertex_point2,v2_color,vertex_point3,v3_colo
             edges_in_line = edges_in_line[idx]
             edge_color_in_line = edge_color_in_line[idx]
 
-            for y in range(edges_in_line[0, 1] + 1, edges_in_line[1, 1]):
-                pixels_in_triangle = np.vstack((pixels_in_triangle, np.array([x, y])))
 
-    return edges,edge_colors
+        for y in range(edges_in_line[0, 1] + 1, edges_in_line[1, 1]):
+            pixels_in_triangle = np.vstack((pixels_in_triangle, np.array([x, y])))
+            r = round(interpolate_vectors(edges_in_line[0, :], edges_in_line[1, :], edge_color_in_line[0, 0], edge_color_in_line[1, 0], y, dim=2))
+            g = round(interpolate_vectors(edges_in_line[0, :], edges_in_line[1, :], edge_color_in_line[0, 1], edge_color_in_line[1, 1], y, dim=2))
+            b = round(interpolate_vectors(edges_in_line[0, :], edges_in_line[1, :], edge_color_in_line[0, 2], edge_color_in_line[1, 2], y, dim=2))
+            pixel_colors = np.vstack((pixel_colors, np.array([r, g, b])))
+
+    return pixels_in_triangle,pixel_colors
 def shade_triangle(vertex_point1,v1_color,vertex_point2,v2_color,vertex_point3,v3_color,shade_t="flat"):
     if shade_t == "flats":
         pixels_in_triangle,flats_color = flats(vertex_point1,v1_color,vertex_point2,v2_color,vertex_point3,v3_color)
@@ -251,7 +264,7 @@ def render(canvas,vertices,faces,vcolors,depth,shade_t):
     # Get the indexes after sorting the triangle depth array with descending order
     sorted_triangle_idx = np.argsort(triangle_depth, kind='quicksort')[::-1]
 
-    i = 1
+    i = 0
     for triangle_idx in sorted_triangle_idx:
         print(triangle_idx)
         i +=1
@@ -271,6 +284,8 @@ def render(canvas,vertices,faces,vcolors,depth,shade_t):
         canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 0] = flats_color[:,0]
         canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 1] = flats_color[:,1]
         canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 2] = flats_color[:,2]
-
+        plt.imshow(canvas, cmap='gray')
+        plt.show()
+        breakpoint()
     return canvas
 
