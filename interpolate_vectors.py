@@ -1,12 +1,12 @@
 import numpy as np
 def interpolate_vectors(p1,p2,V1,V2,xy,dim):
-    """
+    """"" 
     :param V1,V2: values of the vectors V1,V2
     :param p1,p2: coordinates of vectors V1,V2
     :param xy: takes the value of x or y, if dim = 1 or dim = 2
     :param dim: dimension along which we interpolate
     :returns V: value of vector with coordinates x,y
-    """
+    """""
     x1,y1 = p1
     x2,y2 = p2
     if dim == 1:
