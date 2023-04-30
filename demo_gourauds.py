@@ -17,13 +17,13 @@ vcolors = np.floor(vcolors*255)
 # Initialize canvas with rgb values equal to 255 so that the background is white
 canvas = 255 * np.ones([M, N, 3], dtype=np.uint8)
 
-shade_t = "flats"
+shade_t = "gourauds"
 start_time = time.time()
 canvas = render(canvas,verts2d,faces,vcolors,depth,shade_t)
 end_time = time.time()
 
-print(" Rendering with flat shading complete after {:.2f} seconds".format(end_time - start_time))
+print("Rendering with gouraud shading complete after {:.2f} seconds".format(end_time - start_time))
 plt.imshow(canvas)
 plt.show()
-cv2.imwrite('flats_img.jpg', canvas)
+cv2.imwrite('gouraud_img.jpg', canvas)
 breakpoint()
