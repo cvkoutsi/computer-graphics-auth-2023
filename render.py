@@ -242,11 +242,11 @@ def render(canvas,vertices,faces,vcolors,depth,shade_t):
         v3_color = vcolors[vertex_idx[2]]
 
         # Shade the triangle using the method specified by the shade_t variable
-        pixels_in_triangle, flats_color = shade_triangle(vertex_point1,v1_color,vertex_point2,v2_color,vertex_point3,v3_color,shade_t)
+        pixels_in_triangle, pixels_color = shade_triangle(vertex_point1,v1_color,vertex_point2,v2_color,vertex_point3,v3_color,shade_t)
 
         # Update the canvas with the shaded triangle
-        canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 0] = flats_color[:,0]
-        canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 1] = flats_color[:,1]
-        canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 2] = flats_color[:,2]
+        canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 0] = pixels_color[:,0]
+        canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 1] = pixels_color[:,1]
+        canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 2] = pixels_color[:,2]
     return canvas
 

@@ -26,4 +26,3 @@ print("Rendering with gouraud shading complete after {:.2f} seconds".format(end_
 plt.imshow(canvas)
 plt.show()
 cv2.imwrite('gouraud_img.jpg', canvas)
-breakpoint()

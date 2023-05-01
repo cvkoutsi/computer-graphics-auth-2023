@@ -26,4 +26,3 @@ print(" Rendering with flat shading complete after {:.2f} seconds".format(end_ti
 plt.imshow(canvas)
 plt.show()
 cv2.imwrite('flats_img.jpg', canvas)
-breakpoint()
