@@ -106,5 +106,6 @@ def renderObject(p3d, faces, vcolors,H,W,Rows,Columns, f, cv, cK, cup):
 def plot_im(I,i):
     plt.imshow(I)
     plt.show()
-    filename = str(i) + '.jpg'
-    cv2.imwrite(filename,I)
+    path = 'results/'
+    filename = 'position' + str(i) + '.jpg'
+    cv2.imwrite(path + filename,I)
