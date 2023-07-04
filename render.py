@@ -1,5 +1,7 @@
 import numpy as np
 from helpers import interpolate_vectors,fill_line
+import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 def flats(vertex_point1,v1_color,vertex_point2,v2_color,vertex_point3,v3_color):
     """"" 
@@ -82,12 +84,12 @@ def gourauds(vertex_point1,v1_color,vertex_point2,v2_color,vertex_point3,v3_colo
     else:
         v12_color = np.vstack((v2_color,v1_color))
 
-    if np.all(vertex_point2 == edge2[0]):
+    if np.all(vertex_point1 == edge2[0]):
         v13_color = np.vstack((v1_color,v3_color))
     else:
         v13_color = np.vstack((v3_color,v1_color))
 
-    if np.all(vertex_point3 == edge3[0]):
+    if np.all(vertex_point2 == edge3[0]):
         v23_color = np.vstack((v2_color,v3_color))
     else:
         v23_color = np.vstack((v3_color,v2_color))
@@ -245,8 +247,9 @@ def render(canvas,vertices,faces,vcolors,depth,shade_t):
         pixels_in_triangle, pixels_color = shade_triangle(vertex_point1,v1_color,vertex_point2,v2_color,vertex_point3,v3_color,shade_t)
 
         # Update the canvas with the shaded triangle
-        canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 0] = pixels_color[:,0]
-        canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 1] = pixels_color[:,1]
-        canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 2] = pixels_color[:,2]
+        canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 0] = pixels_color[:, 0]
+        canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 1] = pixels_color[:, 1]
+        canvas[pixels_in_triangle[:, 0], pixels_in_triangle[:, 1], 2] = pixels_color[:, 2]
+
     return canvas
 
