@@ -21,9 +21,8 @@ mat_all = light.PhongMaterial(ka,kd,ks,n_phong)
 
 mat = [mat_ambient,mat_diffuse,mat_specular,mat_all]
 
-
-
+shader = 'phong'
 X = np.ones([M, N, 3]) * 255 * bg_color
-X= shading.render_object(focal,cam_eye,cam_lookat,cam_up,bg_color,M,N,H,W,verts, vertex_colors, face_indices,mat_all, lights, Ia)
+X= shading.render_object(shader,focal,cam_eye,cam_lookat,cam_up,bg_color,M,N,H,W,verts, vertex_colors, face_indices,mat_all, lights, Ia)
 plt.imshow(X)
 plt.show()

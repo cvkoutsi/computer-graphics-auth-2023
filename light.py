@@ -11,18 +11,17 @@ class PointLight():
         self.pos = pos_in
         self.I0 = I0_in
 
-def light( point, normal, vcolor, cam_pos, mat, lights, light_amb):
-    I = np.zeros(3)
+def light(point, normal, vcolor, cam_pos, mat, lights, light_amb):
+
+    # Calculate light intensity due to diffused light from the environment
+    I = light_amb * mat.ka
+
     for light in lights:
         L = light.pos - point  #distance of point from light source
         Ln = L / np.linalg.norm(L)
         V = cam_pos - point  #distance of point from the camera
         Vn = V / np.linalg.norm(V)
         Nn = normal
-
-        # Calculate light intensity due to diffused light from the environment
-        Ia = light_amb * mat.ka
-        Ia[Ia<0] = 0
 
         # Calculate light intensity due to diffuse reflection
         Id = light.I0 * mat.kd * np.dot(Nn,Ln)
@@ -34,8 +33,9 @@ def light( point, normal, vcolor, cam_pos, mat, lights, light_amb):
         Is = Is * vcolor
         Is[Is<0] = 0
 
-        It = Ia + Id + Is
+        It = Id + Is
         I = I + It
 
+    # If I = 1, set it to 1
     I[I > 1] = 1
     return I
