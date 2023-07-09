@@ -19,9 +19,53 @@ mat_diffuse = light.PhongMaterial(0,kd,0,n_phong)
 mat_specular = light.PhongMaterial(0,0,ks,n_phong)
 mat_all = light.PhongMaterial(ka,kd,ks,n_phong)
 
-mat = [mat_ambient,mat_diffuse,mat_specular,mat_all]
 
-shader = 'phong'
+
+shader = 'gouraud'
+# Gouraud Shading with ambient lighting
+X = np.ones([M, N, 3]) * 255 * bg_color
+X= shading.render_object(shader,focal,cam_eye,cam_lookat,cam_up,bg_color,M,N,H,W,verts, vertex_colors, face_indices,mat_ambient, lights, Ia)
+plt.imshow(X)
+plt.show()
+
+# Gouraud Shading with diffused lighting
+X = np.ones([M, N, 3]) * 255 * bg_color
+X= shading.render_object(shader,focal,cam_eye,cam_lookat,cam_up,bg_color,M,N,H,W,verts, vertex_colors, face_indices,mat_diffuse, lights, Ia)
+plt.imshow(X)
+plt.show()
+
+# Gouraud Shading with specular lighting
+X = np.ones([M, N, 3]) * 255 * bg_color
+X= shading.render_object(shader,focal,cam_eye,cam_lookat,cam_up,bg_color,M,N,H,W,verts, vertex_colors, face_indices,mat_specular, lights, Ia)
+plt.imshow(X)
+plt.show()
+
+# Gouraud Shading with ambient, diffused and specular lighting
+X = np.ones([M, N, 3]) * 255 * bg_color
+X= shading.render_object(shader,focal,cam_eye,cam_lookat,cam_up,bg_color,M,N,H,W,verts, vertex_colors, face_indices,mat_all, lights, Ia)
+plt.imshow(X)
+plt.show()
+
+shader = 'gouraud'
+# Phong Shading with ambient lighting
+X = np.ones([M, N, 3]) * 255 * bg_color
+X= shading.render_object(shader,focal,cam_eye,cam_lookat,cam_up,bg_color,M,N,H,W,verts, vertex_colors, face_indices,mat_ambient, lights, Ia)
+plt.imshow(X)
+plt.show()
+
+# Gouraud Shading with diffused lighting
+X = np.ones([M, N, 3]) * 255 * bg_color
+X= shading.render_object(shader,focal,cam_eye,cam_lookat,cam_up,bg_color,M,N,H,W,verts, vertex_colors, face_indices,mat_diffuse, lights, Ia)
+plt.imshow(X)
+plt.show()
+
+# Gouraud Shading with specular lighting
+X = np.ones([M, N, 3]) * 255 * bg_color
+X= shading.render_object(shader,focal,cam_eye,cam_lookat,cam_up,bg_color,M,N,H,W,verts, vertex_colors, face_indices,mat_specular, lights, Ia)
+plt.imshow(X)
+plt.show()
+
+# Gouraud Shading with ambient, diffused and specular lighting
 X = np.ones([M, N, 3]) * 255 * bg_color
 X= shading.render_object(shader,focal,cam_eye,cam_lookat,cam_up,bg_color,M,N,H,W,verts, vertex_colors, face_indices,mat_all, lights, Ia)
 plt.imshow(X)

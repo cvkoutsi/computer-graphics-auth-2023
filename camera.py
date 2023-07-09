@@ -71,9 +71,10 @@ def rasterize(p2d,Rows,Columns,H,W):
     n2d[:,0] = np.round(p2d[:,1] * y_scale)
 
     # Move (0,0) to the top left corner
-    n2d[:,0] = img_width/2 - n2d[:,0]
+    n2d[:,0] =img_width/2 - n2d[:,0]
     n2d[:,1] = img_height/2 - n2d[:,1]
 
+    n2d[:,1] = Columns - n2d[:,1]
     return n2d
 
 def renderObject(p3d, faces, vcolors,H,W,Rows,Columns, f, cv, cK, cup):
