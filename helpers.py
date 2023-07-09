@@ -1,4 +1,44 @@
 import numpy as np
+def load_data(file):
+    data = np.load(file, allow_pickle=True).tolist()
+    #  (K,3) array that contains the [x,y,z] coordinates of each vertix. K is the number of vertices
+    verts = data['verts']
+    # (K,3) array that contains the [r,g,b] values of each vertix in range [0,1]. K is the number of vertices
+    vertex_colors = data['vertex_colors']
+    # (L,3) array that contains 3 indexes to the vertices array that define the vertices of the triangles. L is the number of triangles
+    face_indices = data['face_indices']
+
+    # Coordinates of the center of the camera
+    cam_eye = data['cam_eye']
+    # Coordinates of the up vector
+    cam_up = data['cam_up']
+    # Coordinates of the target point
+    cam_lookat = data['cam_lookat']
+
+    # Coefficient of diffused light from the environment
+    ka = data['ka']
+    # Diffuse reflection coefficient
+    kd = data['kd']
+    # Specular reflection coefficient
+    ks = data['ks']
+    # Phong coefficient
+    n = data['n']
+    # Position of the light sources
+    light_positions = data['light_positions']
+    # Intensity of the light sources
+    light_intensities = data['light_intensities']
+    # Ambient light
+    Ia = data['Ia']
+    # Height and width of the final image
+    M = data['M']
+    N = data['N']
+    # Height and width of the sensor
+    W = data['W']
+    H = data['H']
+    bg_color = data['bg_color']
+    # Focal length
+    focal = data['focal']
+    return  verts,vertex_colors,face_indices,cam_eye,cam_up,cam_lookat,ka,kd,ks,n,light_positions, light_intensities,Ia,M,N,W,H,bg_color,focal
 
 def interpolate_vectors(p1,p2,V1,V2,xy,dim):
     """"" 

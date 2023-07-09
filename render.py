@@ -1,7 +1,6 @@
 import numpy as np
 from helpers import interpolate_vectors,fill_line
-import matplotlib.pyplot as plt
-import matplotlib.pyplot as plt
+
 
 def flats(vertex_point1,v1_color,vertex_point2,v2_color,vertex_point3,v3_color):
     """"" 

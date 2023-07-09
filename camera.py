@@ -15,7 +15,7 @@ def pinHole(f, cv, cx, cy, cz, p3d):
 
     # Transform coordinates from WCS to CCS
     R = np.hstack((cx,cy,cz))
-    distance = p3d - cv
+    distance = p3d - cv.reshape(3,1)
     p_ccs = np.dot(np.transpose(R),distance)
     px_ccs = p_ccs[0, :]
     py_ccs = p_ccs[1, :]
@@ -43,7 +43,9 @@ def cameraLookingAt(f, cv, cK, cup, p3d):
     zc = cK - cv / np.linalg.norm(cK - cv)
     t = cup - np.dot(np.transpose(zc),cup)*zc
     yc = t/ np.linalg.norm(t)
-    xc = np.expand_dims(np.cross(np.squeeze(yc),np.squeeze(zc)),axis=1)
+    xc = np.cross(np.squeeze(yc),np.squeeze(zc))
+
+    xc, yc, zc = xc.reshape(3,1),yc.reshape(3,1),zc.reshape(3,1)
 
     p2d,depth = pinHole(f,cv,xc,yc,zc,p3d)
     return p2d,depth
