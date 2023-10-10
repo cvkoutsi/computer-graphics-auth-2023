@@ -1,7 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from render import render
-import cv2
 
 def pinHole(f, cv, cx, cy, cz, p3d):
     """""
@@ -105,10 +103,3 @@ def renderObject(p3d, faces, vcolors,H,W,Rows,Columns, f, cv, cK, cup):
     I = render(I, n2d, faces, vcolors, depth, "gourauds")
 
     return I
-
-def plot_im(I,i):
-    plt.imshow(I)
-    plt.show()
-    path = 'results/'
-    filename = 'position' + str(i) + '.jpg'
-    cv2.imwrite(path + filename,I)

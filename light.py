@@ -1,4 +1,5 @@
 import numpy as np
+
 class PhongMaterial():
     def __init__(self,ka,kd,ks,n_phong):
         self.ka = ka
@@ -11,8 +12,19 @@ class PointLight():
         self.pos = pos_in
         self.I0 = I0_in
 
-def light(point, normal, vcolor, cam_pos, mat, lights, light_amb):
-
+def CalculateLight(point, normal, vcolor, cam_pos, mat, lights, light_amb):
+    """"" 
+    Calculates the light component for given point
+    :param point: coordinates [x,y,z] of the barycenter
+    :param normal: normal vector on the point 
+    :param vcolor: [r,g,b] values of the point in range [0,1]
+    :param cam_pos: coordinates [x,y,z] of the camera
+    :param mat: object of class PhongMaterial
+    :param lights: list of objects of class PointLight
+    :param light_amb: [r,g,b] values of the ambient light in range [0,1]
+    
+    :returns I: calculated [r,g,b] values of the point in range [0,1]    
+    """""
     # Calculate light intensity due to diffused light from the environment
     I = light_amb * mat.ka
 

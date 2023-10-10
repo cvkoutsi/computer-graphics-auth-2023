@@ -1,4 +1,5 @@
 import numpy as np
+from matplotlib import pyplot as plt
 def load_data(file):
     data = np.load(file, allow_pickle=True).tolist()
     #  (K,3) array that contains the [x,y,z] coordinates of each vertix. K is the number of vertices
@@ -46,6 +47,7 @@ def interpolate_vectors(p1,p2,V1,V2,xy,dim):
     :param p1,p2: coordinates of vectors V1,V2
     :param xy: takes the value of x or y, if dim = 1 or dim = 2
     :param dim: dimension along which we interpolate
+    
     :returns V: value of vector with coordinates x,y
     """""
     x1,y1 = p1
@@ -189,3 +191,8 @@ def fill_line(vertex_point1, vertex_point2):
             # Bresenham in x axis
             edge_idx = bresenham(vertex_point1, vertex_point2, axis=0)
     return edge_idx
+
+def plot_im(I,i):
+    plt.imshow(I)
+    plt.show()
+    filename = str(i) + '.jpg'

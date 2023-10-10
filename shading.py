@@ -4,6 +4,13 @@ import render
 import helpers
 
 def calculate_normals(verts, faces):
+    """"" 
+    Calculates the normal vector for the 3D vertices
+    :param verts: (K,3) array that contains the [x,y,z] coordinates of each vertice. K is the number of vertices
+    :param faces: (L,3) array that contains 3 indexes to the vertices array that define the vertices of the triangles. L is the number of triangles
+
+    :returns normals: (K,3) array with the normal vector of each vertice
+    """""
     triangle_normals = np.zeros(faces.shape)
     normals = np.zeros(verts.shape)
 
@@ -25,7 +32,25 @@ def calculate_normals(verts, faces):
     return normals
 
 def render_object(shader, focal, eye, lookat, up, bg_color,M,N,H,W,verts, vert_colors, faces,mat, lights, light_amb):
-
+    """""
+    Renders the canvas with gouraud or phong shading
+    :param shader: is equal to "gouraud" or "phong" depending on the shading method
+    :param focal: the focal length of the camera
+    :param eye: the [x,y,z] coordinates of the camera
+    :param lookat: the [x,y,z] coordinates of the target poing of the camera
+    :param up: the up vector of the camera
+    :param bg_color: the [r,g,b] values in range [0,1] of the background color
+    :param M,N: the width and height of the final image
+    :param H,W: the width and height of the camera sensor
+    :param verts: the (K,3) array that contains the [x,y,z] coordinates of each vertice. K is the number of vertices
+    :param vert_colors: the (K,3) array that contains the [r,g,b] values of each vertice. K is the number of vertices
+    :param faces: the (L,3) array that contains 3 indexes to the vertices array that define the vertices of the triangles. L is the number of triangles
+    :param mat: object of class PhongMaterial
+    :param lights: list of objects of class PointLight
+    :param light_amb: the [r,g,b] values of the ambient light in range [0,1]
+    
+    :returns X: the canvas after shading the triangles
+    """""
     # Create canvas of size MxN with the given background color
     X = np.ones([M, N, 3]) * 255* bg_color
     # Calculate the normal vectors for each vertix
@@ -58,15 +83,29 @@ def render_object(shader, focal, eye, lookat, up, bg_color,M,N,H,W,verts, vert_c
     return X.astype(np.uint8)
 
 def shade_gouraud(vertsp, vertsn, vertsc, bcoords, cam_pos, mat, lights, light_amb,X):
+    """""
+    Shades the triangle with gouraud shading 
+    :param vertsp: the projected [x,y] values of the three vertices
+    :param vertsn: the normal vector of the three vertices
+    :param vertsc: the [r,g,b] values in range [0,1] of the color of the vertices
+    :param bcoords: the [x,y,z] coordinates before the projection of the barycenter of the triangle
+    :param cam_pos: the [x,y,z] coordinates of the camera
+    :param mat: object of class PhongMaterial
+    :param lights: list of objects of class PointLight
+    :param light_amb: the [r,g,b] values of the ambient light in range [0,1]
+    :param X: the canvas before shading the triangle
+    
+    :returns X: the canvas before shading the triangle
+    """""
     v1, v2, v3 = vertsp[:, 0], vertsp[:, 1], vertsp[:, 2]  #Vertix coordinates
     v1_c, v2_c, v3_c = vertsc[:, 0], vertsc[:, 1], vertsc[:, 2] #Vertix colors
     n1, n2, n3 = vertsn[:, 0], vertsn[:, 1], vertsn[:, 2] #Vertix normal vectors
 
-    v1_light = light.light(bcoords, n1, v1_c, cam_pos, mat, lights, light_amb) # Light component of vertix
+    v1_light = light.CalculateLight(bcoords, n1, v1_c, cam_pos, mat, lights, light_amb)  # Light component of vertix
     v1_color = np.round(255*v1_light) # Final color of vertix
-    v2_light = light.light(bcoords, n2, v2_c, cam_pos, mat, lights, light_amb)
+    v2_light = light.CalculateLight(bcoords, n2, v2_c, cam_pos, mat, lights, light_amb)
     v2_color = np.round(255*v2_light)
-    v3_light = light.light(bcoords, n3, v3_c, cam_pos, mat, lights, light_amb)
+    v3_light = light.CalculateLight(bcoords, n3, v3_c, cam_pos, mat, lights, light_amb)
     v3_color = np.round(255*v3_light)
 
     # Shade the triangle using the gourauds shading
@@ -80,6 +119,20 @@ def shade_gouraud(vertsp, vertsn, vertsc, bcoords, cam_pos, mat, lights, light_a
     return X
 
 def shade_phong(vertsp, vertsn, vertsc, bcoords, cam_pos, mat, lights, light_amb,X):
+    """""
+    Shades the triangle with phong shading 
+    :param vertsp: the projected [x,y] values of the three vertices
+    :param vertsn: the normal vector of the three vertices
+    :param vertsc: the [r,g,b] values in range [0,1] of the color of the vertices
+    :param bcoords: the [x,y,z] coordinates before the projection of the barycenter of the triangle
+    :param cam_pos: the [x,y,z] coordinates of the camera
+    :param mat: object of class PhongMaterial
+    :param lights: list of objects of class PointLight
+    :param light_amb: the [r,g,b] values of the ambient light in range [0,1]
+    :param X: the canvas before shading the triangle
+
+    :returns X: the canvas before shading the triangle
+    """""
     v1, v2, v3 = vertsp[:, 0], vertsp[:, 1], vertsp[:, 2] #Vertix coordinates
     v1_c, v2_c, v3_c = vertsc[:, 0], vertsc[:, 1], vertsc[:, 2] #Vertix colors
     n1, n2, n3 = vertsn[:, 0], vertsn[:, 1], vertsn[:, 2] #Vertix normal vectors
@@ -126,7 +179,7 @@ def shade_phong(vertsp, vertsn, vertsc, bcoords, cam_pos, mat, lights, light_amb
         # If all edges have 1 pixel, return the position of the pixel and the color of the vertex
         if len(edges) == 1:
             pixels_in_triangle = edges[0].reshape((1,2))
-            v_light = light.light(edges[0], normals[0], vertex_colors[0], cam_pos, mat, lights, light_amb)
+            v_light = light.CalculateLight(edges[0], normals[0], vertex_colors[0], cam_pos, mat, lights, light_amb)
             v_color = np.round(255 * v_light).reshape((1,3))
             return pixels_in_triangle, v_color
 
@@ -150,7 +203,7 @@ def shade_phong(vertsp, vertsn, vertsc, bcoords, cam_pos, mat, lights, light_amb
         v_normals = normals[i]
         e_colors = np.array([v_colors[0, :]])
         e_normals = np.array([v_normals[0, :]])
-        l = light.light(bcoords, v_normals[0,:], v_colors[0,:], cam_pos, mat, lights, light_amb)
+        l = light.CalculateLight(bcoords, v_normals[0, :], v_colors[0, :], cam_pos, mat, lights, light_amb)
         e_light = np.array(l)
 
         dx1 = max(edge[:, 0]) - min(edge[:, 0])
@@ -169,7 +222,7 @@ def shade_phong(vertsp, vertsn, vertsc, bcoords, cam_pos, mat, lights, light_amb
             n = helpers.interpolate_vectors(edge[0, :], edge[-1, :], v_normals[0,:], v_normals[1, :], xy[i], dim)
             e_colors = np.vstack((e_colors, np.array([r, g, b])))
             e_normals = np.vstack((e_normals,n))
-            l = light.light(bcoords, n, np.array([r,g,b]), cam_pos, mat, lights, light_amb)
+            l = light.CalculateLight(bcoords, n, np.array([r, g, b]), cam_pos, mat, lights, light_amb)
             e_light = np.vstack((e_light,l))
         edge_colors.append(e_colors)
         edge_normals.append(e_normals)
@@ -226,7 +279,7 @@ def shade_phong(vertsp, vertsn, vertsc, bcoords, cam_pos, mat, lights, light_amb
             b = helpers.interpolate_vectors(edges_in_line[0, :], edges_in_line[1, :], edge_color_in_line[0, 2], edge_color_in_line[1, 2], y, dim=2)
 
             n = helpers.interpolate_vectors(edges_in_line[0, :], edges_in_line[1, :], edge_normal_in_line[0, :], edge_normal_in_line[1, :], y, dim=2)
-            l = light.light(bcoords, n, np.array([r, g, b]), cam_pos, mat, lights, light_amb)
+            l = light.CalculateLight(bcoords, n, np.array([r, g, b]), cam_pos, mat, lights, light_amb)
 
             pixel_normals = np.vstack((pixel_normals, n))
             pixel_light = np.vstack((pixel_light, l))
